@@ -12,6 +12,7 @@
   --sidebar-w: 240px;
   --player-h: 88px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
   color-scheme: dark;
 }
 
@@ -124,7 +125,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .topbar {
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; gap: 12px;
-  padding: 16px 0; background: rgba(22, 20, 23, .92);
+  padding: calc(16px + var(--safe-top)) 0 16px; background: rgba(22, 20, 23, .92);
   backdrop-filter: blur(8px);
 }
 .menu-btn { display: none; }
@@ -366,7 +367,16 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .scrim { display: block; position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,.5); }
   .sidebar-close, .menu-btn { display: inline-grid; }
   .main { padding: 0 14px 24px; }
-  .topbar { gap: 6px; padding: 10px 0; }
+  .topbar {
+    flex-wrap: wrap; gap: 8px;
+    margin: 0 -14px; padding: calc(8px + var(--safe-top)) 14px 10px;
+  }
+  .menu-btn { order: 1; }
+  #settingsBtn { order: 2; margin-left: auto; }
+  .search-form { order: 3; flex: 1 1 100%; max-width: none; }
+  /* 16px minimum stops iOS Safari from zooming the page when the field gets focus */
+  #searchInput { font-size: 16px; padding-top: 12px; padding-bottom: 12px; }
+  .sidebar { padding-top: calc(18px + var(--safe-top)); }
   .view-head h1 { font-size: 22px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
   .card { padding: 8px; }

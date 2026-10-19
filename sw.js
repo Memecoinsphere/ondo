@@ -1,6 +1,6 @@
 // Caches only the same-origin app shell. YouTube (iframe API, player, thumbnails),
 // Piped and Google APIs are cross-origin and always go straight to the network.
-const CACHE = 'ondo-shell-v2';
+const CACHE = 'ondo-shell-v3';
 const SHELL = [
   './',
   './index.html',
