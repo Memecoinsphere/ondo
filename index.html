@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ondo — lecteur musique & vidéo</title>
+  <meta name="description" content="Ondo : recherchez et écoutez n'importe quelle vidéo YouTube via le lecteur officiel.">
+  <meta name="theme-color" content="#121216">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Navigation">
+      <div class="brand">
+        <span class="brand-logo" aria-hidden="true">O</span>
+        <span class="brand-name">Ondo</span>
+        <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Fermer le menu">✕</button>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="search"><span aria-hidden="true">⌕</span> Recherche</button>
+        <button class="nav-item" data-view="queue"><span aria-hidden="true">≡</span> File d'attente <span class="badge" id="queueCount">0</span></button>
+        <button class="nav-item" data-view="playlists"><span aria-hidden="true">♫</span> Playlists</button>
+      </nav>
+      <div class="sidebar-section">
+        <div class="sidebar-section-head">
+          <span>Vos playlists</span>
+          <button class="icon-btn small" id="sidebarNewPlaylist" aria-label="Nouvelle playlist" title="Nouvelle playlist">＋</button>
+        </div>
+        <ul class="sidebar-playlists" id="sidebarPlaylists"></ul>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main class="main" id="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
+        <form class="search-form" id="searchForm" role="search">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input type="search" id="searchInput" placeholder="Que voulez-vous écouter ?" autocomplete="off" aria-label="Rechercher une vidéo">
+        </form>
+        <button class="icon-btn" id="settingsBtn" aria-label="Paramètres" title="Paramètres">⚙</button>
+      </header>
+
+      <section class="view" id="view-search">
+        <div class="view-head">
+          <h1 id="searchTitle">Recherche</h1>
+          <span class="source-tag" id="sourceTag"></span>
+        </div>
+        <div class="status" id="searchStatus">Tapez un titre, un artiste ou une chaîne pour commencer.</div>
+        <div class="grid" id="results"></div>
+      </section>
+
+      <section class="view" id="view-queue" hidden>
+        <div class="view-head">
+          <h1>File d'attente</h1>
+          <button class="btn ghost" id="clearQueue">Vider la file</button>
+        </div>
+        <div class="status" id="queueStatus"></div>
+        <ol class="track-list" id="queueList"></ol>
+        <div class="up-next" id="upNextSection" hidden>
+          <div class="view-head sub">
+            <h2>À suivre (depuis la recherche)</h2>
+            <span class="source-tag" id="upNextCount"></span>
+          </div>
+          <ol class="track-list" id="upNextList"></ol>
+        </div>
+      </section>
+
+      <section class="view" id="view-playlists" hidden>
+        <div class="view-head">
+          <h1>Playlists</h1>
+          <button class="btn" id="newPlaylist">Nouvelle playlist</button>
+        </div>
+        <div class="status" id="playlistsStatus"></div>
+        <div class="playlist-grid" id="playlistGrid"></div>
+      </section>
+
+      <section class="view" id="view-playlist" hidden>
+        <div class="view-head wrap">
+          <button class="btn ghost" id="backToPlaylists">← Playlists</button>
+          <h1 id="playlistName"></h1>
+          <div class="actions">
+            <button class="btn" id="playPlaylist">▶ Lire</button>
+            <button class="btn ghost" id="queuePlaylist">Ajouter à la file</button>
+            <button class="btn ghost" id="renamePlaylist">Renommer</button>
+            <button class="btn ghost danger" id="deletePlaylist">Supprimer</button>
+          </div>
+        </div>
+        <div class="status" id="playlistStatus"></div>
+        <ol class="track-list" id="playlistTracks"></ol>
+      </section>
+    </main>
+
+    <div class="video-panel" id="videoPanel" data-visible="false">
+      <div class="video-frame"><div id="ytPlayer"></div></div>
+    </div>
+
+    <footer class="player" id="player" aria-label="Lecteur">
+      <div class="now">
+        <img class="now-thumb" id="nowThumb" alt="" hidden>
+        <div class="now-meta">
+          <div class="now-title" id="nowTitle">Aucune lecture</div>
+          <div class="now-channel" id="nowChannel"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="buttons">
+          <button class="icon-btn toggle" id="shuffleBtn" aria-label="Lecture aléatoire" aria-pressed="false" title="Lecture aléatoire">⤮</button>
+          <button class="icon-btn" id="prevBtn" aria-label="Précédent" title="Précédent">⏮</button>
+          <button class="play-btn" id="playBtn" aria-label="Lecture" title="Lecture">▶</button>
+          <button class="icon-btn" id="nextBtn" aria-label="Suivant" title="Suivant">⏭</button>
+          <button class="icon-btn toggle" id="repeatBtn" aria-label="Répéter : désactivé" aria-pressed="false" title="Répéter">⟳<span class="repeat-one" id="repeatOne" hidden>1</span></button>
+        </div>
+        <div class="progress">
+          <span class="time" id="curTime">0:00</span>
+          <input type="range" id="seek" min="0" max="0" step="1" value="0" aria-label="Position de lecture">
+          <span class="time" id="totTime">0:00</span>
+        </div>
+      </div>
+      <div class="extras">
+        <button class="icon-btn toggle" id="videoBtn" aria-label="Afficher la vidéo" aria-pressed="false" title="Afficher / masquer la vidéo">▣</button>
+        <button class="icon-btn" id="muteBtn" aria-label="Couper le son" title="Couper le son">🔊</button>
+        <input type="range" id="volume" min="0" max="100" step="1" value="80" aria-label="Volume">
+      </div>
+    </footer>
+  </div>
+
+  <div class="menu" id="contextMenu" role="menu" hidden></div>
+
+  <dialog class="modal" id="settingsModal">
+    <form method="dialog" class="modal-body" id="settingsForm">
+      <h2>Paramètres</h2>
+      <label for="apiKeyInput">Clé YouTube Data API v3 (facultative)</label>
+      <input type="text" id="apiKeyInput" placeholder="AIza…" autocomplete="off" spellcheck="false">
+      <p class="note">
+        Facultatif : sans clé, Ondo utilise des instances publiques Piped pour la recherche.
+        Avec une clé, la recherche passe par l'API officielle de YouTube (plus fiable).
+        Pour obtenir une clé gratuite : ouvrez la <strong>Google Cloud Console</strong>
+        (console.cloud.google.com), créez un projet, activez <strong>YouTube Data API v3</strong>
+        dans « API et services », puis créez une <strong>clé API</strong> dans « Identifiants ».
+        La clé reste stockée uniquement dans ce navigateur (localStorage).
+      </p>
+      <p class="note">La lecture utilise toujours le lecteur officiel YouTube intégré.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost danger" id="clearKey">Effacer la clé</button>
+        <button type="button" class="btn ghost" id="cancelSettings">Annuler</button>
+        <button type="submit" class="btn" id="saveSettings">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="promptModal">
+    <form method="dialog" class="modal-body" id="promptForm">
+      <h2 id="promptTitle"></h2>
+      <input type="text" id="promptInput" autocomplete="off" maxlength="80" required>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="promptCancel">Annuler</button>
+        <button type="submit" class="btn">Valider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
